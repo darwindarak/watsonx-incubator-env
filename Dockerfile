@@ -5,18 +5,17 @@ EXPOSE 8501
 # Jupyterlab port
 EXPOSE 8888
 
-WORKDIR /lab
+RUN groupadd -r lab \
+ && useradd -r -g lab -d /home/lab lab \
+ && mkdir /home/lab \
+ && chown -R lab:lab /home/lab
 
-RUN groupadd -r labuser \
- && useradd -r -g labuser labuser \
- && chown -R labuser:labuser /lab
-
-USER labuser
+USER lab
+WORKDIR /home/lab
 
 ADD ./requirements.txt requirements.txt
 RUN python -m venv venv
-ENV PATH="/lab/venv/bin:$PATH"
+ENV PATH="/home/lab/venv/bin:$PATH"
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["jupyter" "lab" "--port" "8888"]
-
+CMD ["jupyter","lab","--port","8888"]
